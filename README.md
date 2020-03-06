@@ -38,3 +38,6 @@
 `git push`
 - "I made a mistake in a file and I don't want it anymore"
 `git checkout <files>`
+- "I want to switch to a different branch"
+`git checkout <branch_name>`
+
