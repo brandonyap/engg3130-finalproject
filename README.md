@@ -25,3 +25,16 @@
   - 
 4) Graph all of the performance results
 5) include a GIF of each of the balancing algorithms
+
+## Git Tutorial
+
+- "I want to have this code on my local machine"
+`git clone https://github.com/brandonyap/engg3130-finalproject.git`
+- "I want the latest code in my repository"
+`git pull`
+- "I want to push my code up into the shared repo"
+`git add .`
+`git commit -m "<commit_message>"`
+`git push`
+- "I made a mistake in a file and I don't want it anymore"
+`git checkout <files>`
