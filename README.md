@@ -6,3 +6,9 @@
 
 ### Balancing Algorithm
 - https://gym.openai.com/envs/CartPole-v1/
+- Algorithms: 
+  - Brute force
+  - reinforcement learning
+    - Neuroevolution
+    - Q learning
+  - digital negative feedback loop (like what would be in control theory)
