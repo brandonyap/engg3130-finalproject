@@ -14,6 +14,7 @@
       - This can be easily implemented with tf.layers
     - Q learning
       - Would be much harder to implement but would be a good learning experience
+    - Policy Gradient
   - digital negative feedback loop (like what would be in control theory)
 
 
