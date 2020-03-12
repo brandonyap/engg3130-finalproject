@@ -13,6 +13,9 @@
 #     1	Push cart to the right
 
 class BaseStrategy:
+    MAX_POSITION_RIGHT = 4.8
+    MAX_POSITION_LEFT = -4.8
+
     def get_pole_position(self, observation):
         return observation[0]
 

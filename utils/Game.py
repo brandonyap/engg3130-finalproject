@@ -24,6 +24,9 @@ class Game:
         print(self.logger.get_angles())
         print(self.logger.get_tip_velocities())
 
+    def plot(self):
+        self.logger.plot()
+
     def play(self):
         observation, reward, done, info = self.env.step(0)
         for _ in range(self.steps):

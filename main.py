@@ -6,9 +6,7 @@ def play_game(strategy, steps=1000):
     game = Game(steps, strategy())
     game.play()
     game.close()
-    game.print_logs()
+    game.plot()
 
 if __name__ == '__main__':
     play_game(PositionStrategy, 100)
-
-# adding a comment

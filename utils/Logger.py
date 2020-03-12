@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 class Logger:
     def __init__(self):
         self.positions = []
@@ -30,3 +32,22 @@ class Logger:
             self.get_angles(),
             self.get_tip_velocities()
         )
+
+    def plot(self, title=""):
+        fig, axs = plt.subplots(4)
+        if title != "":
+            fig.suptitle(title)
+        
+        axs[0].plot(self.get_positions())
+        axs[0].set(xlabel='time', ylabel='position relative to center')
+
+        axs[1].plot(self.get_velocities())
+        axs[1].set(xlabel='time', ylabel='pole base velocity')
+
+        axs[2].plot(self.get_tip_velocities())
+        axs[2].set(xlabel='time', ylabel='pole tip velocity')
+
+        axs[3].plot(self.get_angles())
+        axs[3].set(xlabel='time', ylabel='pole angle')
+
+        plt.show()
