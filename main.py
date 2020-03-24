@@ -16,3 +16,4 @@ if __name__ == '__main__':
     play_game(AngleStrategy, "Angle Strategy", 100)
     play_game(TipVelocityStrategy, "Tip Velocity Strategy", 100)
     play_game(TipVelocityAndPositionStrategy, "Tip Velocity and Position Strategy", 300)
+
