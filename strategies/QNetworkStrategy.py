@@ -115,5 +115,5 @@ class TrainSolver:
         self.model.save('cartpole_model.h5')
 
 if __name__ == '__main__':
-    trainsolver = TrainSolver(100)
+    trainsolver = TrainSolver(200)
     trainsolver.train()
