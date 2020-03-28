@@ -3,12 +3,12 @@ import math
 import random
 
 class Agent:
-    def __init__(self, actionLength, actions=None):
+    def __init__(self, action_length, actions=None):
         self.observations = []
-        self.actionLength = actionLength
+        self.action_length = action_length
         if actions == None:
             self.actions = []        
-            for _ in range(actionLength):
+            for _ in range(action_length):
                 self.actions.append(Agent.create_random_action())
         else:
             self.actions = actions
@@ -38,58 +38,62 @@ class Agent:
 
     def crossover(self, other):
         new_actions = []
-        midpoint = math.floor(np.random.random() * self.actionLength)
-        for i in range(self.actionLength):
+        midpoint = math.floor(np.random.random() * self.action_length)
+        for i in range(self.action_length):
             if i < midpoint:
                 new_actions.append(self.actions[i])
             else:
                 new_actions.append(other.actions[i])
-        return Agent(self.actionLength, new_actions)
+        return Agent(self.action_length, new_actions)
 
     def mutate(self, mutation_rate):
-        for i in range(self.actionLength):
+        for i in range(self.action_length):
             r = np.random.random()
             if r < mutation_rate:
                 self.actions[i] = Agent.create_random_action()        
 
 class Population:
-    def __init__(self, popsize, actionLength, mutation_rate=0.02): #, agents=None
+    def __init__(self, popsize, action_length, mutation_rate=0.01): #, agents=None
         self.popsize = popsize
         self.mutation_rate = mutation_rate
-        self.pop = []
+        self.agents = []
         for _ in range(popsize):
-            self.pop.append(Agent(actionLength))
+            self.agents.append(Agent(action_length))
 
     def next_generation(self):
-        for agent in self.pop:
+        for agent in self.agents:
             agent.play()
         
-        mating_pool = self.create_mating_pool()
+        mating_pool, max_agent = self.create_mating_pool()
         new_agents = self.natural_selection(mating_pool)
 
         for agent in new_agents:
             agent.mutate(self.mutation_rate)
 
-        self.pop = new_agents
+        self.agents = new_agents
+
+        return max_agent
 
     def calculate_max_fitness(self):
         max_fitness = -1
-        for agent in self.pop:
+        max_agent = None
+        for agent in self.agents:
             fitness = agent.calculate_fitness()
             if fitness > max_fitness:
                 max_fitness = fitness
-        return max_fitness
+                max_agent = agent
+        return max_fitness, max_agent
 
     def create_mating_pool(self):
         mating_pool = []
 
-        max_fitness = self.calculate_max_fitness()
-        for agent in self.pop:
+        max_fitness, max_agent = self.calculate_max_fitness()
+        for agent in self.agents:
             normalized_fitness = agent.calculate_normalized_fitness(max_fitness)
             n = math.floor(normalized_fitness * self.popsize)
             for _ in range(n):
                 mating_pool.append(agent)
-        return mating_pool
+        return mating_pool, max_agent
 
     def natural_selection(self, mating_pool):
         new_agents = []
