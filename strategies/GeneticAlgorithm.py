@@ -27,6 +27,7 @@ class Agent:
         for action in self.actions:
             self.observations.append(action)
 
+    # This must change when integrating with the real game
     def calculate_fitness(self):
         total = 0
         for obs in self.observations:
