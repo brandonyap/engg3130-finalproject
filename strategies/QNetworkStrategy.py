@@ -92,7 +92,7 @@ class TrainSolver:
             while True:
 
                 step += 1
-                env.render()
+                # env.render()
                 action = self.solver.take_action(state)
                 state_next, reward, done, info = env.step(action)
                 if not done:
