@@ -59,3 +59,4 @@ $ pip3 freeze | grep <package> >> requirements.txt
   `git checkout <files>`
 - "I want to switch to a different branch"
   `git checkout <branch_name>`
+
