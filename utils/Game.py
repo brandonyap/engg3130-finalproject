@@ -1,26 +1,38 @@
 from utils.ScoreLogger import ScoreLogger
+from utils.Logger import Logger
 import gym
 
 class Game:
     def __init__(self, episodes, strategy, render=False):
         self.episodes = episodes
         self.strategy = strategy
-        self.logger = ScoreLogger()
+        self.logger = Logger()
+        self.scorelogger = ScoreLogger()
         self.render = render
 
         self.env = gym.make('CartPole-v1')
 
-    def log(self, score):
-        self.logger.log(score)
+    def log(self, score, observation):
+        self.scorelogger.log(score)
+        self.logger.log(
+             self.strategy.get_pole_position(observation),
+             self.strategy.get_pole_velocity(observation),
+             self.strategy.get_pole_angle(observation),
+             self.strategy.get_pole_tip_velocity(observation)
+         )
+
+    def print_logs(self):
+         print(self.logger.get_positions())
+         print(self.logger.get_velocities())
+         print(self.logger.get_angles())
+         print(self.logger.get_tip_velocities())
+         print(self.scorelogger.get_scores())
 
     def plot(self, title=""):
-        self.logger.plot(title)
+        self.scorelogger.plot(title)
 
     def play(self):
-        episode = 0
-        while episode < self.episodes:
-            episode += 1
-
+        for episode in range(self.episodes):
             self.env.reset()
             observation, reward, done, info = self.env.step(0)
 
@@ -33,8 +45,8 @@ class Game:
                 action = self.strategy.calculate(observation)
                 observation, reward, done, info = self.env.step(action)
                 if done:
-                    self.log(step)
-                    print("Run: " + str(episode) + ", score: " + str(step))
+                    self.log(step, observation)
+                    print("Run: " + str(episode+1) + ", score: " + str(step))
                     break
 
     def close(self):
