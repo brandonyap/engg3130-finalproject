@@ -12,8 +12,10 @@ class Game:
 
         self.env = gym.make('CartPole-v1')
 
-    def log(self, score, observation):
+    def log_score(self, score):
         self.scorelogger.log(score)
+
+    def log_observation(self, observation):
         self.logger.log(
              self.strategy.get_pole_position(observation),
              self.strategy.get_pole_velocity(observation),
@@ -30,6 +32,7 @@ class Game:
 
     def plot(self, title=""):
         self.scorelogger.plot(title)
+        self.logger.plot(title)
 
     def play(self):
         for episode in range(self.episodes):
@@ -44,8 +47,12 @@ class Game:
                     self.env.render()
                 action = self.strategy.calculate(observation)
                 observation, reward, done, info = self.env.step(action)
+
+                if episode == self.episodes - 1:
+                    self.log_observation(observation)
+
                 if done:
-                    self.log(step, observation)
+                    self.log_score(step)
                     print("Run: " + str(episode+1) + ", score: " + str(step))
                     break
 
