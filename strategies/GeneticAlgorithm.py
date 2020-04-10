@@ -1,75 +1,43 @@
 import numpy as np
 import math
 import random
+from utils.BaseStrategy import BaseStrategy
 
-class Agent:
-    def __init__(self, action_length, actions=None):
-        self.observations = []
-        self.action_length = action_length
-        if actions == None:
-            self.actions = []        
-            for _ in range(action_length):
-                self.actions.append(Agent.create_random_action())
-        else:
+class Agent(BaseStrategy):
+    def __init__(self, actions=None, default_action_length=1000):
+        self.idx = 0
+        if actions:
             self.actions = actions
-
-    @staticmethod
-    def create_random_action():
-        r = np.random.random()
-        if (r > 0.5):
-            return 1
         else:
-            return 0
+            self.actions = []
+            for _ in range(default_action_length):
+                self.actions.append(self.create_random_action())
 
-    def play(self):
-        self.observations = []
-        # to start I am just going to make the goal of the game to make all of your actions 1
-        for action in self.actions:
-            self.observations.append(action)
+    def reset(self):
+        self.idx = 0
 
-    # This must change when integrating with the real game
-    def calculate_fitness(self):
-        total = 0
-        for obs in self.observations:
-            total += obs
-        return total
-
-    def calculate_normalized_fitness(self, max_fitness):
-        return self.calculate_fitness() / max_fitness
-
-    def crossover(self, other):
-        new_actions = []
-        midpoint = math.floor(np.random.random() * self.action_length)
-        for i in range(self.action_length):
-            if i < midpoint:
-                new_actions.append(self.actions[i])
-            else:
-                new_actions.append(other.actions[i])
-        return Agent(self.action_length, new_actions)
-
-    def mutate(self, mutation_rate):
-        for i in range(self.action_length):
-            r = np.random.random()
-            if r < mutation_rate:
-                self.actions[i] = Agent.create_random_action()        
+    def calculate(self, observation):
+        if self.idx == len(self.actions):
+            return self.emit_end_game_signal()
+        else:
+            current_action = self.actions[self.idx]
+            self.idx += 1
+            return current_action  
 
 class Population:
-    def __init__(self, popsize, action_length, mutation_rate=0.01):
-        self.popsize = popsize
+    def __init__(self, pop_size, mutation_rate=0.01):
+        self.pop_size = pop_size
         self.mutation_rate = mutation_rate
         self.agents = []
-        for _ in range(popsize):
-            self.agents.append(Agent(action_length))
+        for _ in range(pop_size):
+            self.agents.append(Agent())
 
-    def next_generation(self):
-        for agent in self.agents:
-            agent.play()
-        
+    def next_generation(self):        
         mating_pool, max_agent = self.create_mating_pool()
         new_agents = self.natural_selection(mating_pool)
 
         for agent in new_agents:
-            agent.mutate(self.mutation_rate)
+            self.mutate(agent)
 
         self.agents = new_agents
 
@@ -79,7 +47,7 @@ class Population:
         max_fitness = -1
         max_agent = None
         for agent in self.agents:
-            fitness = agent.calculate_fitness()
+            fitness = self.calculate_fitness(agent)
             if fitness > max_fitness:
                 max_fitness = fitness
                 max_agent = agent
@@ -90,17 +58,46 @@ class Population:
 
         max_fitness, max_agent = self.calculate_max_fitness()
         for agent in self.agents:
-            normalized_fitness = agent.calculate_normalized_fitness(max_fitness)
-            n = math.floor(normalized_fitness * self.popsize)
+            n = math.floor(self.calculate_normalized_fitness(agent, max_fitness) * self.pop_size)
             for _ in range(n):
                 mating_pool.append(agent)
         return mating_pool, max_agent
 
     def natural_selection(self, mating_pool):
         new_agents = []
-        for _ in range(self.popsize):
+        for _ in range(self.pop_size):
             parentA = random.choice(mating_pool)
             parentB = random.choice(mating_pool)
-            child = parentA.crossover(parentB)
+            child = self.crossover(parentA, parentB)
+            # child = parentA.crossover(parentB)
             new_agents.append(child)
         return new_agents
+
+    def crossover(self, parentA, parentB):
+        new_actions = []
+
+        l = len(parentA.actions)
+        midpoint = math.floor(np.random.random() * l)
+
+        for i in range(l):
+            if i < midpoint:
+                new_actions.append(parentA.actions[i])
+            else:
+                new_actions.append(parentB.actions[i])
+
+        return Agent(actions=new_actions)
+
+    def mutate(self, agent):
+        for i in range(len(agent.actions)):
+            if np.random.random() < self.mutation_rate:
+                agent.actions[i] = agent.create_random_action()
+
+    # To start objective of game is to get all 1
+    def calculate_fitness(self, agent):
+        total = 0
+        for action in agent.actions:
+            total += action
+        return total
+
+    def calculate_normalized_fitness(self, agent, max_fitness):
+        return self.calculate_fitness(agent) / max_fitness

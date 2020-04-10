@@ -1,3 +1,5 @@
+import numpy as np
+
 # Observation: 
 #     Type: Box(4)
 #     Num	Observation                 Min         Max
@@ -57,3 +59,12 @@ class BaseStrategy:
 
     def make_move_left_action(self):
         return 0
+
+    def emit_end_game_signal(self):
+        return -1
+
+    def create_random_action(self):
+        if (np.random.random() > 0.5):
+            return self.make_move_right_action()
+        else:
+            return self.make_move_left_action()

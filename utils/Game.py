@@ -50,17 +50,21 @@ class Game:
                 step += 1
                 if self.render:
                     self.env.render()
+
                 action = self.strategy.calculate(observation)
-                observation, reward, done, info = self.env.step(action)
+                if action != -1:
+                    observation, reward, done, info = self.env.step(action)
 
-                self.log_observation(observation, logger)
+                    self.log_observation(observation, logger)
 
-                if done:
+                if done or action == -1:
                     self.log_score(step)
                     print("Run: " + str(episode+1) + ", score: " + str(step))
+
                     if step > self.highscore:
                         self.highscore = step
                         self.logger = logger
+                    self.strategy.reset()
                     break
 
     def close(self):
