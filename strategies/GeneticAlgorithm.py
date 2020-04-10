@@ -54,7 +54,7 @@ class Agent:
                 self.actions[i] = Agent.create_random_action()        
 
 class Population:
-    def __init__(self, popsize, action_length, mutation_rate=0.01): #, agents=None
+    def __init__(self, popsize, action_length, mutation_rate=0.01):
         self.popsize = popsize
         self.mutation_rate = mutation_rate
         self.agents = []
