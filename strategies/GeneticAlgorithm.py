@@ -1,10 +1,11 @@
 import numpy as np
 import math
 import random
+import gym
 from utils.BaseStrategy import BaseStrategy
 
 class Agent(BaseStrategy):
-    def __init__(self, actions=None, default_action_length=1000):
+    def __init__(self, default_action_length, actions=None):
         self.idx = 0
         if actions:
             self.actions = actions
@@ -22,18 +23,34 @@ class Agent(BaseStrategy):
         else:
             current_action = self.actions[self.idx]
             self.idx += 1
-            return current_action  
+            print(str(current_action) + " " + str(self.idx))
+            return current_action
+
+    def calculate_fitness(self, env):
+        total = 0
+
+        for action in self.actions:
+            observation, reward, done, info = env.step(action)
+            if done:
+                break
+            else:
+                total += 1
+
+        return total
 
 class Population:
-    def __init__(self, pop_size, mutation_rate=0.01):
+    def __init__(self, pop_size, mutation_rate=0.01, default_action_length=1000):
         self.pop_size = pop_size
         self.mutation_rate = mutation_rate
         self.agents = []
+        self.env = gym.make('CartPole-v1')
+        self.default_action_length = default_action_length
+
         for _ in range(pop_size):
-            self.agents.append(Agent())
+            self.agents.append(Agent(default_action_length=self.default_action_length))
 
     def next_generation(self):        
-        mating_pool, max_agent = self.create_mating_pool()
+        mating_pool, max_agent, max_fitness = self.create_mating_pool()
         new_agents = self.natural_selection(mating_pool)
 
         for agent in new_agents:
@@ -41,13 +58,14 @@ class Population:
 
         self.agents = new_agents
 
-        return max_agent
+        return max_agent, max_fitness
 
     def calculate_max_fitness(self):
         max_fitness = -1
         max_agent = None
         for agent in self.agents:
-            fitness = self.calculate_fitness(agent)
+            self.env.reset()
+            fitness = agent.calculate_fitness(self.env)
             if fitness > max_fitness:
                 max_fitness = fitness
                 max_agent = agent
@@ -61,7 +79,7 @@ class Population:
             n = math.floor(self.calculate_normalized_fitness(agent, max_fitness) * self.pop_size)
             for _ in range(n):
                 mating_pool.append(agent)
-        return mating_pool, max_agent
+        return mating_pool, max_agent, max_fitness
 
     def natural_selection(self, mating_pool):
         new_agents = []
@@ -85,19 +103,13 @@ class Population:
             else:
                 new_actions.append(parentB.actions[i])
 
-        return Agent(actions=new_actions)
+        return Agent(actions=new_actions, default_action_length=self.default_action_length)
 
     def mutate(self, agent):
         for i in range(len(agent.actions)):
             if np.random.random() < self.mutation_rate:
                 agent.actions[i] = agent.create_random_action()
 
-    # To start objective of game is to get all 1
-    def calculate_fitness(self, agent):
-        total = 0
-        for action in agent.actions:
-            total += action
-        return total
-
     def calculate_normalized_fitness(self, agent, max_fitness):
-        return self.calculate_fitness(agent) / max_fitness
+        self.env.reset()
+        return agent.calculate_fitness(self.env) / max_fitness

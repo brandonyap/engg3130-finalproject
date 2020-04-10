@@ -57,6 +57,9 @@ class Game:
 
                     self.log_observation(observation, logger)
 
+                print("action " + str(action))
+                print("done " + str(done))
+
                 if done or action == -1:
                     self.log_score(step)
                     print("Run: " + str(episode+1) + ", score: " + str(step))
@@ -64,7 +67,9 @@ class Game:
                     if step > self.highscore:
                         self.highscore = step
                         self.logger = logger
-                    self.strategy.reset()
+
+                        if "reset" in dir(self.strategy):
+                            self.strategy.reset()
                     break
 
     def close(self):
