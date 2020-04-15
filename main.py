@@ -1,12 +1,24 @@
-import gym
+from utils.BaseStrategy import BaseStrategy
+from utils.Game import Game
+from strategies.PositionStrategy import PositionStrategy
+from strategies.AngleStrategy import AngleStrategy
+from strategies.TipVelocityStrategy import TipVelocityStrategy
+from strategies.TipVelocityAndPositionStrategy import TipVelocityAndPositionStrategy
+from strategies.RandomStrategy import RandomStrategy
 
-env = gym.make('CartPole-v0')
-env.reset()
+episodes = 100
+render=False
 
-for _ in range(1000):
-    env.render()
-    env.step(env.action_space.sample()) # take a random action
+def play_game(strategy, title="", episodes=100):
+    print(title)
+    game = Game(episodes, strategy(), render)
+    game.play()
+    game.close()
+    game.plot(title)
 
-env.close()
-
-# adding a comment
+if __name__ == '__main__':
+    play_game(PositionStrategy, "Position Strategy", episodes)
+    play_game(AngleStrategy, "Angle Strategy", episodes)
+    play_game(TipVelocityStrategy, "Tip Velocity Strategy", episodes)
+    play_game(TipVelocityAndPositionStrategy, "Tip Velocity and Position Strategy", episodes)
+    play_game(RandomStrategy, "Random Strategy", episodes)
