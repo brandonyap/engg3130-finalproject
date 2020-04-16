@@ -19,8 +19,8 @@ def play_game(strategy, title="", episodes=100):
 
 if __name__ == '__main__':
     play_game(PIDStrategy, "PID Strategy", episodes)
-    #play_game(PositionStrategy, "Position Strategy", episodes)
-    #play_game(AngleStrategy, "Angle Strategy", episodes)
-    #play_game(TipVelocityStrategy, "Tip Velocity Strategy", episodes)
-    #play_game(TipVelocityAndPositionStrategy, "Tip Velocity and Position Strategy", episodes)
-    #play_game(RandomStrategy, "Random Strategy", episodes)
+    play_game(PositionStrategy, "Position Strategy", episodes)
+    play_game(AngleStrategy, "Angle Strategy", episodes)
+    play_game(TipVelocityStrategy, "Tip Velocity Strategy", episodes)
+    play_game(TipVelocityAndPositionStrategy, "Tip Velocity and Position Strategy", episodes)
+    play_game(RandomStrategy, "Random Strategy", episodes)
