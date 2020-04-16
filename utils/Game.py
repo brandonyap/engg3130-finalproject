@@ -9,14 +9,17 @@ class Game:
         self.logger = Logger()
         self.scorelogger = ScoreLogger()
         self.render = render
+        self.highscore = -1
+        self.totalscore = 0
 
         self.env = gym.make('CartPole-v1')
 
     def log_score(self, score):
+        self.totalscore += score
         self.scorelogger.log(score)
 
-    def log_observation(self, observation):
-        self.logger.log(
+    def log_observation(self, observation, logger):
+        logger.log(
              self.strategy.get_pole_position(observation),
              self.strategy.get_pole_velocity(observation),
              self.strategy.get_pole_angle(observation),
@@ -31,6 +34,7 @@ class Game:
          print(self.scorelogger.get_scores())
 
     def plot(self, title=""):
+        print("High Score: " + str(self.highscore) + ", Average Score: " + str(self.totalscore/self.episodes))
         self.scorelogger.plot(title)
         self.logger.plot(title)
 
@@ -40,6 +44,7 @@ class Game:
             observation, reward, done, info = self.env.step(0)
 
             step = 0
+            logger = Logger()
 
             while True:
                 step += 1
@@ -48,12 +53,14 @@ class Game:
                 action = self.strategy.calculate(observation)
                 observation, reward, done, info = self.env.step(action)
 
-                if episode == self.episodes - 1:
-                    self.log_observation(observation)
+                self.log_observation(observation, logger)
 
                 if done:
                     self.log_score(step)
                     print("Run: " + str(episode+1) + ", score: " + str(step))
+                    if step > self.highscore:
+                        self.highscore = step
+                        self.logger = logger
                     break
 
     def close(self):
