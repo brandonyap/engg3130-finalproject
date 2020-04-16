@@ -1,3 +1,5 @@
+# Reference: https://medium.com/@siddharthkale/solving-cartpole-v1-4be909b7c2c6
+
 import gym
 import random
 from keras.models import Sequential
@@ -8,6 +10,10 @@ import matplotlib.pyplot as plt
 from collections import deque
 from statistics import mean
 import h5py
+
+from utils.BaseStrategy import BaseStrategy
+from utils.ScoreLogger import ScoreLogger
+from utils.Logger import Logger
 
 LEARNING_RATE = 1e-3
 MAX_MEMORY = 1000000
@@ -59,20 +65,49 @@ class Network:
         return self.model
 
 
-class TrainSolver:
+class DQNGameSolver(BaseStrategy):
 
-    def __init__(self, max_episodes):
+    def __init__(self, max_episodes, render=False):
         self.max_episodes = max_episodes
+        self.logger = Logger()
+        self.scorelogger = ScoreLogger()
+        self.render = render
+        self.highscore = -1
+        self.totalscore = 0
+
         self.score_table = deque(maxlen=400)
         self.average_of_last_runs = None
         self.model = None
-        self.play_episodes = 100
         env = gym.make('CartPole-v1')
         observation_space = env.observation_space.shape[0]
         action_space = env.action_space.n
         self.solver = Network(observation_space, action_space)
 
-    def train(self):
+    def log_score(self, score):
+        self.totalscore += score
+        self.scorelogger.log(score)
+
+    def log_observation(self, observation, logger):
+        logger.log(
+             self.get_pole_position(observation),
+             self.get_pole_velocity(observation),
+             self.get_pole_angle(observation),
+             self.get_pole_tip_velocity(observation)
+         )
+
+    def plot(self, title=""):
+        print("High Score: " + str(self.highscore) + ", Average Score: " + str(self.totalscore/self.max_episodes))
+        self.scorelogger.plot(title)
+        self.logger.plot(title)
+        
+    def print_logs(self):
+         print(self.logger.get_positions())
+         print(self.logger.get_velocities())
+         print(self.logger.get_angles())
+         print(self.logger.get_tip_velocities())
+         print(self.scorelogger.get_scores())
+
+    def play(self):
         env = gym.make('CartPole-v1')
         observation_space = env.observation_space.shape[0]
         action_space = env.action_space.n
@@ -89,12 +124,19 @@ class TrainSolver:
             state = env.reset()
             state = np.reshape(state, [1, observation_space])
             step = 0
+            logger = Logger()
+
             while True:
 
                 step += 1
-                # env.render()
+                if self.render:
+                    env.render()
+                
                 action = self.solver.take_action(state)
                 state_next, reward, done, info = env.step(action)
+
+                self.log_observation(state_next, logger)
+
                 if not done:
                     reward = reward
                 else:
@@ -104,7 +146,13 @@ class TrainSolver:
                 state = state_next
 
                 if done:
+                    self.log_score(step)
                     print("Run: " + str(episode) + ", exploration: " + str(self.solver.exploration_rate) + ", score: " + str(step))
+                    if step > self.highscore:
+                        self.highscore = step
+                        self.logger = logger
+
+                    env.close()
                     break
                 self.solver.experience_replay()
 
@@ -113,7 +161,3 @@ class TrainSolver:
 
     def save_model(self):
         self.model.save('cartpole_model.h5')
-
-if __name__ == '__main__':
-    trainsolver = TrainSolver(200)
-    trainsolver.train()
