@@ -1,0 +1,5 @@
+gym==0.17.1
+matplotlib==3.2.0
+control == 0.8.3
+keras
+tensorflow
