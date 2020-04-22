@@ -56,7 +56,7 @@ class Game:
 
                 if done:
                     self.log_score(step)
-                    print("Run: " + str(episode+1) + ", score: " + str(step))
+                    # print("Run: " + str(episode+1) + ", score: " + str(step))
                     if step > self.highscore:
                         self.highscore = step
                         self.logger = logger
