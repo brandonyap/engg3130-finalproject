@@ -1,5 +1,6 @@
 from Logger import Logger, ScoreLogger
 import gym
+import numpy as np
 
 class Game:
     def __init__(self, episodes, strategy, render=False):
@@ -49,17 +50,23 @@ class Game:
                 step += 1
                 if self.render:
                     self.env.render()
+
                 action = self.strategy.calculate(observation)
-                observation, reward, done, info = self.env.step(action)
+                
+                if action != -1:
+                    observation, reward, done, info = self.env.step(action)
+                    self.log_observation(observation, logger)
 
-                self.log_observation(observation, logger)
-
-                if done:
+                if done or action == -1:
                     self.log_score(step)
-                    # print("Run: " + str(episode+1) + ", score: " + str(step))
+
+                    
                     if step > self.highscore:
                         self.highscore = step
                         self.logger = logger
+                        
+                        if "reset" in dir(self.strategy):
+                            self.strategy.reset()
                     break
 
     def close(self):
@@ -125,4 +132,13 @@ class BaseStrategy:
 
     def make_move_left_action(self):
         return 0
+    
+    def emit_end_game_signal(self):
+        return -1
+
+    def create_random_action(self):
+        if (np.random.random() > 0.5):
+            return self.make_move_right_action()
+        else:
+            return self.make_move_left_action()
 
