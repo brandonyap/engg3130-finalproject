@@ -6,6 +6,7 @@ from strategies.TipVelocityStrategy import TipVelocityStrategy
 from strategies.TipVelocityAndPositionStrategy import TipVelocityAndPositionStrategy
 from strategies.RandomStrategy import RandomStrategy
 from strategies.QNetworkStrategy import DQNGameSolver
+from strategies.PIDStrategy import PIDStrategy
 
 episodes = 100
 render=False
@@ -24,6 +25,7 @@ def play_dqn_game(title="", episodes=100):
     game.plot(title)
 
 if __name__ == '__main__':
+    play_game(PIDStrategy, "PID Strategy", episodes)
     play_game(PositionStrategy, "Position Strategy", episodes)
     play_game(AngleStrategy, "Angle Strategy", episodes)
     play_game(TipVelocityStrategy, "Tip Velocity Strategy", episodes)
